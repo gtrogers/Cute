@@ -106,7 +106,7 @@ local _drawSummary = function()
   -- header
   local bannerColor = _green
   local bannerTextColor = _black
-  if _sate ~= "passed" then bannerColor = _red; bannerTextColor = _lightGrey end
+  if _state ~= "passed" then bannerColor = _red; bannerTextColor = _lightGrey end
   love.graphics.setColor(unpack(bannerColor))
   love.graphics.rectangle('fill', _x, _y, 300, 20)
   love.graphics.setColor(unpack(bannerTextColor))
