@@ -97,24 +97,53 @@ cute.go = function (args)
   if (_shouldRun) then _runAllTests() end
 end
 
+local _green = {122,158,53}
+local _black = {45,45,45}
+local _red = {170, 57, 57}
+local _lightGrey = {238,238,238}
 
-cute.draw = function ()
-  if (_state == "pending" or not _display) then return end
-
+local _drawSummary = function()
+  -- header
+  local bannerColor = _green
+  local bannerTextColor = _black
+  if _sate ~= "passed" then bannerColor = _red; bannerTextColor = _lightGrey end
+  love.graphics.setColor(unpack(bannerColor))
+  love.graphics.rectangle('fill', _x, _y, 300, 20)
+  love.graphics.setColor(unpack(bannerTextColor))
   love.graphics.print(
-    "Cute 0.0.1 Ran [".. #_finishedTests .. "] tests result: " .. _state,
-    _x,_y
+    "Cute 0.0.1 - Ran " .. #_finishedTests .. " tests. Results: " .. _state,
+    _x + 3, _y + 3
   )
 
+  -- results
+  love.graphics.setColor(unpack(_lightGrey))
+  love.graphics.rectangle('fill', _x, _y + 20, 300, 300)
   for i, test in ipairs(_finishedTests) do
-    if (i > _offset) then
-      if (test.passed) then
-        love.graphics.print(_formatPassed(test), _x + 7, _y + 14*(i - _offset))
+    if (i - _offset)*14 > (300 - 14) then break end
+    if i > _offset then
+      if test.passed then
+        love.graphics.setColor(unpack(_black))
+        love.graphics.print(
+          test.name,
+          _x + 9, _y + 8 + (i - _offset) * 14
+        )
       else
-        love.graphics.print(_formatFailed(test), _x + 7, _y + 14*(i - _offset))
+        love.graphics.setColor(unpack(_red))
+        love.graphics.print(
+          "[FAIL] " .. test.name ..
+          " (exptected ".. test.testValue .. " to eqaul "
+          .. test.refValue .. ")",
+          _x + 9, _y + 8 + (i - _offset) * 14
+        )
       end
     end
   end
+end
+
+
+cute.draw = function ()
+  if (_state == "pending" or not _display) then return end
+  _drawSummary()
 end
 
 
