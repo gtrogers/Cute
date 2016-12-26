@@ -40,7 +40,26 @@ The position of the results can be set with `cute.setResultsPosition(x,y)`
 Cute currently has two matchers:
 - `verify("something", a).is(b)` will test if a == b
 - `verify("all of something", t).all(function (v) ... end)` will run the supplied predicate against all the values of v in the table t. The test will fail if the predicate returns false for any values.
+- `verify("some table", {1,2,3}).likeTable({1,2,3})` will check that table length and keys and values are the same for both tables
 - ... more to come as I need them
+
+## Fake Graphics
+
+Cute provides a fake `love.graphics` object for spying on rendering. You are then able to check the number of call made to the fake graphics function. For example:
+
+```lua
+-- text box test
+
+local textBox = {}
+
+textBox.draw = function (graphics, x, y, text)
+  graphics.print(text, x, y)
+end
+
+textBox.draw(cute.fakeGraphics(), 10, 10, "this is a test")
+
+verify("Text is drawn once", cute.graphicsCall("print")).is(1) -- passes
+```
 
 ## Future features
 
