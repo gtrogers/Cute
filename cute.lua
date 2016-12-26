@@ -4,7 +4,7 @@ local cute = {}
 local _tests = {}
 local _finishedTests = {}
 local _shouldRun
-local _shouldQuitOnFail
+local _headlessMode
 local _state = "pending"
 local _display = true
 local _hideKey = "h"
@@ -35,7 +35,14 @@ local _runAllTests = function ()
   for i, test in ipairs(_tests) do
       test.passed = test.runTest()
       table.insert(_finishedTests, test)
-      if not test.passed then _state = "failed" end
+      if not test.passed then
+        _state = "failed"
+      end
+  end
+
+  if _headlessMode then
+    if _state == "failed" then os.exit(-1) end
+    if _state == "passed" then os.exit() end
   end
 end
 
@@ -83,7 +90,7 @@ cute.go = function (args)
     if (arg == "--cute") then _shouldRun = true end
     if (arg == "--cute-headless") then
       _shouldRun = true
-      _shouldQuitOnFail = true
+      _headlessMode = true
     end
   end
 
