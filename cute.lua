@@ -49,8 +49,30 @@ end
 
 -- Public functions
 
+local _tableEqual = function (t1, t2)
+  if #t1 ~= #t2 then return false end
+  for k,v in pairs(t1) do
+    if v ~= t2[k] then return false end
+  end
+  return true
+end
 
 verify = function (name, testValue)
+  local _likeTable = function (refValue)
+    table.insert(_tests, {
+      runTest = function ()
+        if type(testValue) ~= "table" then
+          return false
+        else
+          return _tableEqual(testValue, refValue)
+        end
+      end,
+      name = name,
+      refValue = refValue,
+      testValue = testValue
+    })
+  end
+
   local _is = function (refValue)
     table.insert(_tests, {
       runTest = function () return (testValue == refValue) end,
@@ -80,7 +102,8 @@ verify = function (name, testValue)
 
   return {
     is = _is,
-    all = _all
+    all = _all,
+    likeTable = _likeTable
   }
 end
 
@@ -104,11 +127,17 @@ local _lightGrey = {238,238,238}
 
 local _drawSummary = function()
   -- header
+  love.graphics.push('all')
   local bannerColor = _green
   local bannerTextColor = _black
-  if _state ~= "passed" then bannerColor = _red; bannerTextColor = _lightGrey end
+  local resultsWidth = 500
+  local resultsHeight = 500
+  if _state ~= "passed" then
+    bannerColor = _red
+    bannerTextColor = _lightGrey
+  end
   love.graphics.setColor(unpack(bannerColor))
-  love.graphics.rectangle('fill', _x, _y, 300, 20)
+  love.graphics.rectangle('fill', _x, _y, resultsWidth, 20)
   love.graphics.setColor(unpack(bannerTextColor))
   love.graphics.print(
     "Cute 0.0.1 - Ran " .. #_finishedTests .. " tests. Results: " .. _state,
@@ -117,7 +146,7 @@ local _drawSummary = function()
 
   -- results
   love.graphics.setColor(unpack(_lightGrey))
-  love.graphics.rectangle('fill', _x, _y + 20, 300, 300)
+  love.graphics.rectangle('fill', _x, _y + 20, resultsWidth, resultsHeight)
   for i, test in ipairs(_finishedTests) do
     if (i - _offset)*14 > (300 - 14) then break end
     if i > _offset then
@@ -131,13 +160,14 @@ local _drawSummary = function()
         love.graphics.setColor(unpack(_red))
         love.graphics.print(
           "[FAIL] " .. test.name ..
-          " (exptected ".. test.testValue .. " to eqaul "
-          .. test.refValue .. ")",
+          " (exptected ".. tostring(test.testValue) .. " to equal "
+          .. tostring(test.refValue) .. ")",
           _x + 9, _y + 8 + (i - _offset) * 14
         )
       end
     end
   end
+  love.graphics.pop()
 end
 
 
@@ -174,5 +204,30 @@ cute.setResultsPosition = function (x,y)
   _y = y
 end
 
+local fakeGraphics = {}
+local callCounts = {}
+
+local countCall = function (name)
+  if callCounts[name] then
+    callCounts[name] = callCounts[name] + 1
+  else
+    callCounts[name] = 1
+  end
+end
+
+-- TODO: add all graphics functions
+for i, funcName in ipairs({"rectangle", "print", "push", "pop", "setColor"}) do
+  fakeGraphics[funcName] = function (...) countCall(funcName) end
+end
+
+cute.fakeGraphics = function ()
+  callCounts = {}
+  return fakeGraphics
+end
+
+cute.graphicsCalls = function (name)
+  local count = callCounts[name]
+  if count == nil then return 0 else return count end
+end
 
 return cute
