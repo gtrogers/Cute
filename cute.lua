@@ -101,11 +101,12 @@ end
 cute.draw = function ()
   if (_state == "pending" or not _display) then return end
 
+  love.graphics.print(
+    "Cute 0.0.1 Ran [".. #_finishedTests .. "] tests result: " .. _state,
+    _x,_y
+  )
+
   for i, test in ipairs(_finishedTests) do
-    love.graphics.print(
-      "Cute 0.0.1 Ran [".. #_finishedTests .. "] tests result: " .. _state,
-      _x,_y
-    )
     if (i > _offset) then
       if (test.passed) then
         love.graphics.print(_formatPassed(test), _x + 7, _y + 14*(i - _offset))
