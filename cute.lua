@@ -215,9 +215,10 @@ local countCall = function (name)
   end
 end
 
--- TODO: add all graphics functions
-for i, funcName in ipairs({"rectangle", "print", "push", "pop", "setColor"}) do
-  fakeGraphics[funcName] = function (...) countCall(funcName) end
+for key, val in pairs(love.graphics) do
+  if (type(val) == "function") then
+    fakeGraphics[key] = function (...) countCall(key) end
+  end
 end
 
 cute.fakeGraphics = function ()
