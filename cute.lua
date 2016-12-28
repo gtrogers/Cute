@@ -96,11 +96,11 @@ local _shallowMatches = function (testTable, refTable)
     error("Tables are different sizes", 3)
   end
 
-  for i, item in ipairs(testTable) do
-    if item ~= refTable[i] then
-      error("Mismatch for element number " .. i ..
+  for k, item in pairs(testTable) do
+    if item ~= refTable[k] then
+      error("Mismatch for element with key " .. k ..
             ": " .. item .. " ~= " ..
-            refTable[i], 3)
+            refTable[k], 3)
     end
   end
 
