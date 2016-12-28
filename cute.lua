@@ -3,25 +3,39 @@ local version = "0.1.0"
 local padding = 16
 local margin = 8
 local show = true
+local enabled = true
 local hideKey = "h"
+local downKey = "j"
+local upKey = "k"
+local offset = 0
 
 local tests = {}
 
-local runAllTests = function ()
+local runAllTests = function (headlessMode)
   for i, test in ipairs(tests) do
     passed, errorMsg = pcall(test.run)
     if (not passed) then
       test.errorMsg = errorMsg
+      if headlessMode then os.exit(-1) end
     else
       test.passed = true
     end
   end
+
+  if headlessMode then os.exit(0) end
 end
 
 -- controls
 
 local keypressed = function (key)
-  if key == "h" then show = not show end
+  if not enabled then return end
+
+  if key == hideKey then show = not show end
+
+  if show then
+    if (key == downKey and offset < #tests) then offset = offset + 1 end
+    if (key == upKey and offset > 0) then offset = offset - 1 end
+  end
 end
 
 -- drawing functions
@@ -51,22 +65,30 @@ local _drawResultsBox = function(g, w, h)
     'center')
 end
 
+local _drawLine = function(g, i, offset, test)
+  if test.passed then
+    _setColour("black", g)
+    msg = "Passed: " .. test.title
+  else
+    _setColour("red", g)
+    msg = "Failed: " .. test.title .. " - " .. test.errorMsg
+  end
+  g.print(msg, padding + margin, (padding * 1.5) + margin * 2 + (i - 1 - offset)*14)
+end
+
 local _drawResults = function(g, w, h)
   for i, test in ipairs(tests) do
     local msg
-    if test.passed then
-      _setColour("black", g)
-      msg = "Passed: " .. test.title
-    else
-      _setColour("red", g)
-      msg = "Failed: " .. test.title .. " - " .. test.errorMsg
+    if offset == #tests then break end
+    if i > offset then
+      _drawLine(g, i, offset, test)
     end
-    g.print(msg, padding + margin, (padding * 1.5) + margin * 2 + (i-1)*14)
   end
 end
 
 local display = function (g)
-  if (not show) then return end
+  if not show then return end
+  if not enabled then return end
 
   local w = g.getWidth()
   local h = g.getHeight()
@@ -117,8 +139,27 @@ check = function (testVal)
   }
 end
 
-cute.go = runAllTests
+-- options and running
+
+cute.go = function (args)
+  for i, arg in ipairs(args) do
+    if arg == "--cute" then
+      enabled = true
+      runAllTests(false)
+      break
+    end
+    if arg == "--cute-headless" then
+      runAllTests(true)
+    end
+  end
+end
+
 cute.draw = function () display(love.graphics) end
 cute.keypressed = keypressed
+cute.setKeys = function (hide, down, up)
+  hideKey = hide
+  downKey = down
+  upKey = up
+end
 
 return cute

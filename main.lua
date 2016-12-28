@@ -10,8 +10,8 @@ notion("Can compare tables", function ()
   check({one="two", three="four"}).shallowMatches({one="two", three="four"})
 end)
 
-love.load = function ()
-  cute.go()
+love.load = function (args)
+  cute.go(args)
 end
 
 love.draw = function ()
