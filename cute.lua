@@ -162,4 +162,35 @@ cute.setKeys = function (hide, down, up)
   upKey = up
 end
 
+-- fakeGraphics
+local callCounts = {}
+local fakes = {}
+
+local countCall = function (funcName)
+  if not callCounts[funcName] then
+    callCounts[funcName] = 1
+  else
+    callCounts[funcName] = callCounts[funcName] + 1
+  end
+end
+
+cute.fakeGraphics = function ()
+  callCounts = {}
+  fakes = {}
+  for funcName, f in pairs(love.graphics) do
+    if string.sub(funcName, 1, 3) == "get" then
+      fakes[funcName] = f
+    else
+      fakes[funcName] = function (...) countCall(funcName) end
+    end
+  end
+
+  return fakes
+end
+
+cute.graphicsCalls = function(funcName)
+  if callCounts[funcName] == nil then return 0 end
+  return callCounts[funcName]
+end
+
 return cute
