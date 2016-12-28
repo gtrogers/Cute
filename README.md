@@ -7,18 +7,23 @@ Cute lets you [unit test](https://en.wikipedia.org/wiki/Unit_testing) your game 
 
 You can also run the tests headlessly on a CI server if that's your jam.
 
-## Installation
+You can find an example of some tests [here](https://github.com/gtrogers/Cute/blob/master/example_tests.lua)
 
-- Download `cute.lua` and add it to your your source code.
-- Write some tests:
+## What do tests look like?
+
 ```lua
-notion("Adding some numbers", function ()
-  check(1 + 1).is(2) -- passes
-  check(2 + 2).is(4) -- passes
-  check(4 + 4).is(9) -- fails
+local cute = require("cute")
+
+notion("Foo is Zap", function ()
+  local Foo = "Zap"
+  check(Foo).is("Zap") -- passes
 end)
 ```
-- Add `cute.go(args)` to love.load in your main.lua file (remember to require cute and your tests)
+
+## How to use
+
+- Download `cute.lua` and add it to your your source code.
+- Add `cute.go(args)` to love.load in your main.lua file (remember to require cute and your tests) - [example](https://github.com/gtrogers/Cute/blob/master/main.lua)
 - Optionaly add `cute.draw()` and `cute.keypressed(key)` to your love.draw and love.keypressed functions (also in main.lua)
 - Run your game with `path/to/love game_directory --cute` or `path/to/love game_directory --cute-headless`
 
@@ -40,7 +45,7 @@ Cute currently has two matchers:
 
 ## Fake Graphics
 
-Cute provides a fake `love.graphics` object for spying on rendering. You are then able to check the number of call made to the fake graphics function. For example:
+Cute provides a fake `love.graphics` object for spying on rendering. You are then able to check the number of call made to the fake graphics functions. For example:
 
 ```lua
 -- text box test
@@ -53,7 +58,7 @@ end
 
 textBox.draw(cute.fakeGraphics(), 10, 10, "this is a test")
 
-verify("Text is drawn once", cute.graphicsCall("print")).is(1) -- passes
+verify("Text is drawn once", cute.graphicsCalls("print")).is(1) -- passes
 ```
 
 ## Future features
