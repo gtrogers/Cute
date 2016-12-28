@@ -87,6 +87,9 @@ notion = function (title, testMethod)
 end
 
 local _is = function (testVal, refVal)
+  if type(testVal) == "table" or type(refVal) == "table" then
+    error("Can't compare tables with .is try .matchesTable")
+  end
   if testVal ~= refVal then error(testVal .. " ~= " .. refVal, 3) end
   return true
 end
