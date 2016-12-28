@@ -56,9 +56,12 @@ textBox.draw = function (graphics, x, y, text)
   graphics.print(text, x, y)
 end
 
-textBox.draw(cute.fakeGraphics(), 10, 10, "this is a test")
+notion("Textboxes should print to the screen", function ()
+  textBox.draw(cute.fakeGraphics(), 10, 10, "this is a test")
+  
+  check(cute.graphicsCalls("print")).is(1)
+end)
 
-verify("Text is drawn once", cute.graphicsCalls("print")).is(1) -- passes
 ```
 
 ## Future features
