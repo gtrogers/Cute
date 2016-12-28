@@ -40,7 +40,7 @@ The controls can be remapped with `cute.setKeys("hideKey","upKey","downKey")`
 
 Cute currently has two matchers:
 - `verify("something", a).is(b)` will test if a == b
-- `verify("some table", {1,2,3}).matchesTable({1,2,3})` will check that table length and keys and values are the same for both tables
+- `verify("some table", {1,2,3}).shallowMatches({1,2,3})` will check that table length and keys and values are the same for both tables
 - ... more to come as I need them
 
 ## Fake Graphics
