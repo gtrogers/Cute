@@ -9,9 +9,29 @@ local downKey = "j"
 local upKey = "k"
 local offset = 0
 local foundFailingTest = false
+local testLocation = "test"
 
 local tests = {}
 local focusTests = {}
+
+local stringEnds = function(s, _end)
+   return _end == '' or string.sub(s,-string.len(_end)) == _end
+end
+
+local addTests = function (files, currentPath)
+  for i, f in ipairs(files) do
+    local file = currentPath .. "/" .. f
+    if stringEnds(f, "_tests.lua") then
+      local chunk = love.filesystem.load(file)
+      chunk()
+    end
+  end
+end
+
+local discover = function()
+  local dir = love.filesystem.getDirectoryItems(testLocation)
+  addTests(dir, testLocation)
+end
 
 local getTests = function ()
   local testsToRun
@@ -181,7 +201,7 @@ end
 -- options and running
 
 cute.go = function (args)
-  local shouldGo = false
+  local shouldGo = true
   local headless = false
   for i, arg in ipairs(args) do
     if arg == "--cute" then
@@ -193,6 +213,7 @@ cute.go = function (args)
   end
 
   if shouldGo then
+    discover()
     runAllTests(headless)
   else
     enabled = false
