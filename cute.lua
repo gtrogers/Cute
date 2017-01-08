@@ -8,15 +8,31 @@ local hideKey = "h"
 local downKey = "j"
 local upKey = "k"
 local offset = 0
+local foundFailingTest = false
 
 local tests = {}
+local focusTests = {}
+
+local getTests = function ()
+  local testsToRun
+  if #focusTests > 0 then
+    testsToRun = focusTests
+  else
+    testsToRun = tests
+  end
+  return testsToRun
+end
 
 local runAllTests = function (headlessMode)
-  for i, test in ipairs(tests) do
+  for i, test in ipairs(getTests()) do
     passed, errorMsg = pcall(test.run)
     if (not passed) then
+      foundFailingTest = true
       test.errorMsg = errorMsg
-      if headlessMode then os.exit(-1) end
+      if headlessMode then
+        print("Test Failed! " .. tostring(errorMsg))
+        os.exit(-1)
+      end
     else
       test.passed = true
     end
@@ -33,7 +49,7 @@ local keypressed = function (key)
   if key == hideKey then show = not show end
 
   if show then
-    if (key == downKey and offset < #tests) then offset = offset + 1 end
+    if (key == downKey and offset < #getTests()) then offset = offset + 1 end
     if (key == upKey and offset > 0) then offset = offset - 1 end
   end
 end
@@ -55,7 +71,11 @@ local _drawResultsBox = function(g, w, h)
   _setColour('lightGrey', g)
   g.rectangle('fill', padding, padding, w - padding*2, h - padding*2)
 
-  _setColour('green', g)
+  if foundFailingTest then
+    _setColour('red', g)
+  else
+    _setColour('green', g)
+  end
   g.rectangle('fill', padding, padding, w - padding*2, padding)
   _setColour('black', g)
   g.printf('Cute ' .. version .. "- [h] hide [j] scroll up [k] scroll down",
@@ -66,20 +86,25 @@ local _drawResultsBox = function(g, w, h)
 end
 
 local _drawLine = function(g, i, offset, test)
+  if test.focused then
+    msg = "FOCUSED "
+  else
+    msg = ""
+  end
   if test.passed then
     _setColour("black", g)
-    msg = "Passed: " .. test.title
+    msg = msg .. "Passed: " .. test.title
   else
     _setColour("red", g)
-    msg = "Failed: " .. test.title .. " - " .. test.errorMsg
+    msg = msg .. "Failed: " .. test.title .. " - " .. tostring(test.errorMsg)
   end
   g.print(msg, padding + margin, (padding * 1.5) + margin * 2 + (i - 1 - offset)*14)
 end
 
 local _drawResults = function(g, w, h)
-  for i, test in ipairs(tests) do
+  for i, test in ipairs(getTests()) do
     local msg
-    if offset == #tests then break end
+    if offset == #getTests() then break end
     if i > offset then
       _drawLine(g, i, offset, test)
     end
@@ -108,11 +133,25 @@ notion = function (title, testMethod)
   })
 end
 
+f_notion = function (title, testMethod)
+  table.insert(focusTests, {
+    title=title,
+    run=testMethod,
+    focused=true
+  })
+end
+
+
+x_notion = function (title, testMethod)
+  -- do nothing
+end
+
 local _is = function (testVal, refVal)
   if type(testVal) == "table" or type(refVal) == "table" then
     error("Can't compare tables with .is try .matchesTable")
   end
-  if testVal ~= refVal then error(testVal .. " ~= " .. refVal, 3) end
+  if testVal ~= refVal then error(
+    tostring(testVal) .. " ~= " .. tostring(refVal), 3) end
   return true
 end
 
@@ -123,9 +162,9 @@ local _shallowMatches = function (testTable, refTable)
 
   for k, item in pairs(testTable) do
     if item ~= refTable[k] then
-      error("Mismatch for element with key " .. k ..
-            ": " .. item .. " ~= " ..
-            refTable[k], 3)
+      error("Mismatch for element with key " .. tostring(k) ..
+            ": " .. tostring(item) .. " ~= " ..
+            tostring(refTable[k]), 3)
     end
   end
 
@@ -142,15 +181,21 @@ end
 -- options and running
 
 cute.go = function (args)
+  local shouldGo = false
+  local headless = false
   for i, arg in ipairs(args) do
     if arg == "--cute" then
-      enabled = true
-      runAllTests(false)
-      break
+      shouldGo = true
     end
     if arg == "--cute-headless" then
-      runAllTests(true)
+      headless = true
     end
+  end
+
+  if shouldGo then
+    runAllTests(headless)
+  else
+    enabled = false
   end
 end
 
