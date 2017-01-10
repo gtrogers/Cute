@@ -1,12 +1,19 @@
 local cute = require("cute")
-local tests = require("example_tests")
+local shapes = require("src.shapes")
 
 love.load = function (args)
   cute.go(args)
 end
 
-love.draw = function ()
-  tests.tiles(love.graphics)
+local _dt = 0
+
+love.update = function (dt)
+  _dt = _dt + dt
+end
+
+love.draw = function (dt)
+  shapes.tiles(love.graphics)
+  shapes.circle(_dt % 100)
   cute.draw(love.graphics)
 end
 

@@ -43,9 +43,45 @@ local getTests = function ()
   return testsToRun
 end
 
+local minions = {}
+
+minion = function (name, tbl, k)
+  print("creating minion...")
+  print(k)
+  minions[name] = {
+    table=tbl,
+    key=k,
+    callback = tbl[k],
+    calls = 0,
+    args = {}
+  }
+  tbl[k] =  function (...)
+    local arguments = {...}
+    minions[name].calls = minions[name].calls + 1
+    table.insert(minions[name].args, arguments)
+    return minions[name].callback(unpack(arguments))
+  end
+end
+
+report = function(name)
+  return minions[name]
+end
+
+local resetMinions = function ()
+  for name, _ in pairs(minions) do
+    print("reseting minion: " .. name)
+    local minion = minions[name]
+    minion.table[minion.key] = minion.callback
+  end
+  minions = {}
+end
+
 local runAllTests = function (headlessMode)
+  print("running tests...")
   for i, test in ipairs(getTests()) do
+    print(test.title)
     passed, errorMsg = pcall(test.run)
+    resetMinions()
     if (not passed) then
       foundFailingTest = true
       test.errorMsg = errorMsg
@@ -177,7 +213,15 @@ end
 
 local _shallowMatches = function (testTable, refTable)
   if #testTable ~= #refTable then
-    error("Tables are different sizes", 3)
+    local t1 = "t1: "
+    local t2 = "t2: "
+    for _, o in ipairs(testTable) do
+      t1 = t1 .. tostring(o) .. " "
+    end
+    for _, o in ipairs(refTable) do
+      t2 = t2 .. tostring(o) .. " "
+    end
+    error("Tables are different sizes: " .. t1 .. " | " .. "t2", 3)
   end
 
   for k, item in pairs(testTable) do
@@ -226,37 +270,6 @@ cute.setKeys = function (hide, down, up)
   hideKey = hide
   downKey = down
   upKey = up
-end
-
--- fakeGraphics
-local callCounts = {}
-local fakes = {}
-
-local countCall = function (funcName)
-  if not callCounts[funcName] then
-    callCounts[funcName] = 1
-  else
-    callCounts[funcName] = callCounts[funcName] + 1
-  end
-end
-
-cute.fakeGraphics = function ()
-  callCounts = {}
-  fakes = {}
-  for funcName, f in pairs(love.graphics) do
-    if string.sub(funcName, 1, 3) == "get" then
-      fakes[funcName] = f
-    else
-      fakes[funcName] = function (...) countCall(funcName) end
-    end
-  end
-
-  return fakes
-end
-
-cute.graphicsCalls = function(funcName)
-  if callCounts[funcName] == nil then return 0 end
-  return callCounts[funcName]
 end
 
 return cute
