@@ -1,13 +1,26 @@
 # Cute
-Micro unit testing for Love2d
+Embedded unit testing for Love2d
 
 ## What?
 
-Cute lets you [unit test](https://en.wikipedia.org/wiki/Unit_testing) your game code and provides a nice GUI for seeing the results in game.
+Cute lets you write [unit tests](https://en.wikipedia.org/wiki/Unit_testing) for
+your game code and run the tests inside of your game.
+
+Cute is designed to be light weight, easy to use and focus on the minimum needed
+set of features to be confident your code works.
 
 You can also run the tests headlessly on a CI server if that's your jam.
 
-You can find an example of some tests [here](https://github.com/gtrogers/Cute/blob/master/example_tests.lua)
+You can find an example of some tests [here](https://github.com/gtrogers/Cute/blob/master/test/example_tests.lua)
+
+## Current Features
+
+- Simple test discovery*
+- 'Spy' on hard to test side effects (e.g. graphics calls)
+- Display test results in an in-game GUI
+- Can also be run as part of an automate build process with the `--cute-headless` flag
+
+_*currently doesn't support sub-directories_
 
 ## What do tests look like?
 
@@ -18,14 +31,23 @@ notion("Foo is Zap", function ()
   local Foo = "Zap"
   check(Foo).is("Zap") -- passes
 end)
+
+notion("1000 circles get drawn", function ()
+  minion("el circle-o", love.graphics, circle)
+
+  draw_circles(1000)
+
+  check(report("el circle-o").calls).is(1000)
+end)
 ```
 
 ## How to use
 
 - Download `cute.lua` and add it to your your source code.
-- Add `cute.go(args)` to love.load in your main.lua file (remember to require cute and your tests) - [example](https://github.com/gtrogers/Cute/blob/master/main.lua)
-- Optionaly add `cute.draw()` and `cute.keypressed(key)` to your love.draw and love.keypressed functions (also in main.lua)
-- Run your game with `path/to/love game_directory --cute` or `path/to/love game_directory --cute-headless`
+- Add `cute.go(args)` to love.load in your main.lua file - [example](https://github.com/gtrogers/Cute/blob/master/main.lua)
+- Optionaly add `cute.draw()` and `cute.keypressed(key)` to your love.draw and love.keypressed functions for sweet GUI action (also in main.lua)
+- Run your game with `path/to/love game_directory --cute`
+- Cute will detect and run any tests in the top level `test` directory ending with `_tests.lua`
 
 ## GUI Mode
 
@@ -41,29 +63,29 @@ The controls can be remapped with `cute.setKeys("hideKey","upKey","downKey")`
 Cute currently has two matchers:
 - `verify("something", a).is(b)` will test if a == b
 - `verify("some table", {1,2,3}).shallowMatches({1,2,3})` will check that table length and keys and values are the same for both tables
-- ... more to come as I need them
 
-## Fake Graphics
+## Minions
 
-Cute provides a fake `love.graphics` object for spying on rendering. You are then able to check the number of call made to the fake graphics functions. For example:
+You can temporarily intercept and record calls to functions. This is useful when you want to
+test the result of drawing to the screen (or some other hard to test action).
+
+You do this using minions...
 
 ```lua
--- text box test
+local cute = require("cute")
 
-local textBox = {}
+notion("The circles are pink", function ()
+  minion("el color-o", love.graphics, setColor) -- creates a minion to inspect setColor
 
-textBox.draw = function (graphics, x, y, text)
-  graphics.print(text, x, y)
-end
+  draw_circles(1000)
 
-notion("Textboxes should print to the screen", function ()
-  textBox.draw(cute.fakeGraphics(), 10, 10, "this is a test")
-  
-  check(cute.graphicsCalls("print")).is(1)
+  check(report("el color-o").args).shallowMatches({255, 0, 255}) -- checks what the minion observed
 end)
-
 ```
 
-## Future features
+_Note: unlike Jasmine or Busted spies minions always call through to the function
+they are inspecting._
 
-Let me know what you'd like or raise a pull request :)
+## Future Features
+
+Very happy to receive feature requests and pull requests. Currently adding features as I need them.

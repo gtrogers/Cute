@@ -11,17 +11,6 @@ notion("Can compare tables", function ()
   check({one="two", three="four"}).shallowMatches({one="two", three="four"})
 end)
 
-local tiles = function (g)
-  w = g.getWidth() / 16
-  h = g.getHeight() / 16
-  for i=0, w do
-    for j=0, h do
-      g.setColor(i*4 % 255, j*4 % 255, i*j*16 % 255)
-      g.rectangle('fill', i*16, j*16, 16, 16)
-    end
-  end
-end
-
 notion("Can check things that draw", function ()
   minion("rectangleMinion", love.graphics, 'rectangle')
   minion("setColorMinion", love.graphics, 'setColor')
