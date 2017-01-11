@@ -61,6 +61,18 @@ minion = function (name, tbl, k)
     table.insert(minions[name].args, arguments)
     return minions[name].callback(unpack(arguments))
   end
+
+  return {
+    nobbleReturnValue= function (val)
+      tbl[k] = function (...)
+        -- TODO: 1, 2, refactor!
+        local arguments = {...}
+        minions[name].calls = minions[name].calls + 1
+        table.insert(minions[name].args, arguments)
+        return val
+      end
+    end
+  }
 end
 
 report = function(name)

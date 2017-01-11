@@ -32,7 +32,16 @@ notion("Minions get reset after each call", function ()
   check(report("circleMinion").args[1]).shallowMatches({"line", 400, 300, 0, 100})
 end)
 
-return {
-  tiles=tiles,
-  circle=circle
-}
+notion("Can overwrite return values", function ()
+  minion("width", love.graphics, "getWidth").nobbleReturnValue(12345)
+
+  local foo = love.graphics.getWidth()
+
+  check(foo).is(12345)
+end)
+
+notion("Return values are reset", function ()
+  local bar = love.graphics.getWidth()
+
+  check(bar).is(800)
+end)
