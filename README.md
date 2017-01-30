@@ -15,12 +15,10 @@ You can find an example of some tests [here](https://github.com/gtrogers/Cute/bl
 
 ## Current Features
 
-- Simple test discovery*
+- Simple test discovery
 - 'Spy' on hard to test side effects (e.g. graphics calls)
 - Display test results in an in-game GUI
 - Can also be run as part of an automate build process with the `--cute-headless` flag
-
-_*currently doesn't support sub-directories_
 
 ## What do tests look like?
 
@@ -47,7 +45,7 @@ end)
 - Add `cute.go(args)` to love.load in your main.lua file - [example](https://github.com/gtrogers/Cute/blob/master/main.lua)
 - Optionaly add `cute.draw()` and `cute.keypressed(key)` to your love.draw and love.keypressed functions for sweet GUI action (also in main.lua)
 - Run your game with `path/to/love game_directory --cute`
-- Cute will detect and run any tests in the top level `test` directory ending with `_tests.lua`
+- Cute will detect and run any tests in the `test` directory and every subdirectory ending with `_tests.lua`
 
 ## GUI Mode
 

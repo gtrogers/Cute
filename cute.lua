@@ -18,19 +18,36 @@ local stringEnds = function(s, _end)
    return _end == '' or string.sub(s,-string.len(_end)) == _end
 end
 
-local addTests = function (files, currentPath)
+-- forward declaration
+local getAllFiles
+
+getAllFiles = function(folder, allFiles)
+  allFiles = allFiles or {}
+  local lfs = love.filesystem
+  local filesTable = lfs.getDirectoryItems(folder)
+  for i,v in ipairs(filesTable) do
+    local file = folder .. "/" .. v
+    if lfs.isFile(file) then
+      table.insert(allFiles, file)
+    elseif lfs.isDirectory(file) then
+      getAllFiles(file, allFiles)
+    end
+  end
+  return allFiles
+end
+
+local addTests = function (files)
   for i, f in ipairs(files) do
-    local file = currentPath .. "/" .. f
     if stringEnds(f, "_tests.lua") then
-      local chunk = love.filesystem.load(file)
+      local chunk = love.filesystem.load(f)
       chunk()
     end
   end
 end
 
 local discover = function()
-  local dir = love.filesystem.getDirectoryItems(testLocation)
-  addTests(dir, testLocation)
+  local files = getAllFiles(testLocation)
+  addTests(files)
 end
 
 local getTests = function ()
