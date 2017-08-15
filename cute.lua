@@ -3,7 +3,7 @@ local version = "0.1.0"
 local padding = 16
 local margin = 8
 local show = true
-local enabled = true
+local enabled = false
 local hideKey = "h"
 local downKey = "j"
 local upKey = "k"
@@ -275,22 +275,22 @@ end
 -- options and running
 
 cute.go = function (args)
-  local shouldGo = true
+  local shouldGo = false
   local headless = false
   for i, arg in ipairs(args) do
     if arg == "--cute" then
       shouldGo = true
     end
     if arg == "--cute-headless" then
+      shouldGo = true
       headless = true
     end
   end
 
   if shouldGo then
+    enabled = true
     discover()
     runAllTests(headless)
-  else
-    enabled = false
   end
 end
 
