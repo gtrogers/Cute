@@ -109,7 +109,7 @@ local runAllTests = function (headlessMode)
   print("running tests...")
   for i, test in ipairs(getTests()) do
     print(test.title)
-    passed, errorMsg = pcall(test.run)
+    local passed, errorMsg = pcall(test.run)
     resetMinions()
     if (not passed) then
       foundFailingTest = true
@@ -171,6 +171,7 @@ local _drawResultsBox = function(g, w, h)
 end
 
 local _drawLine = function(g, i, offset, test)
+  local msg
   if test.focused then
     msg = "FOCUSED "
   else
@@ -233,7 +234,7 @@ end
 
 local _is = function (testVal, refVal)
   if type(testVal) == "table" or type(refVal) == "table" then
-    error("Can't compare tables with .is try .matchesTable")
+    error("Can't compare tables with .is, try .shallowMatches",3)
   end
   if testVal ~= refVal then error(
     tostring(testVal) .. " ~= " .. tostring(refVal), 3) end
