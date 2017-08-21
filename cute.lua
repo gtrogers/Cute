@@ -3,7 +3,7 @@ local version = "0.1.0"
 local padding = 16
 local margin = 8
 local show = true
-local enabled = true
+local enabled = false
 local hideKey = "h"
 local downKey = "j"
 local upKey = "k"
@@ -109,7 +109,7 @@ local runAllTests = function (headlessMode)
   print("running tests...")
   for i, test in ipairs(getTests()) do
     print(test.title)
-    passed, errorMsg = pcall(test.run)
+    local passed, errorMsg = pcall(test.run)
     resetMinions()
     if (not passed) then
       foundFailingTest = true
@@ -171,6 +171,7 @@ local _drawResultsBox = function(g, w, h)
 end
 
 local _drawLine = function(g, i, offset, test)
+  local msg
   if test.focused then
     msg = "FOCUSED "
   else
@@ -233,7 +234,7 @@ end
 
 local _is = function (testVal, refVal)
   if type(testVal) == "table" or type(refVal) == "table" then
-    error("Can't compare tables with .is try .matchesTable")
+    error("Can't compare tables with .is, try .shallowMatches",3)
   end
   if testVal ~= refVal then error(
     tostring(testVal) .. " ~= " .. tostring(refVal), 3) end
@@ -274,22 +275,22 @@ end
 -- options and running
 
 cute.go = function (args)
-  local shouldGo = true
+  local shouldGo = false
   local headless = false
   for i, arg in ipairs(args) do
     if arg == "--cute" then
       shouldGo = true
     end
     if arg == "--cute-headless" then
+      shouldGo = true
       headless = true
     end
   end
 
   if shouldGo then
+    enabled = true
     discover()
     runAllTests(headless)
-  else
-    enabled = false
   end
 end
 
