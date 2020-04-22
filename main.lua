@@ -12,7 +12,7 @@ love.update = function (dt)
 end
 
 love.draw = function (dt)
-  shapes.tiles(love.graphics)
+  shapes.tiles()
   shapes.circle(_dt % 100)
   cute.draw(love.graphics)
 end
