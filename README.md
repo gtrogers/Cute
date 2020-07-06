@@ -13,7 +13,7 @@ set of features to be confident your code works.
 
 You can also run the tests headlessly on a CI server if that's your jam.
 
-You can find an example of some tests [here](https://github.com/gtrogers/Cute/blob/master/test/example_tests.lua)
+You can find an example of some tests [here](https://github.com/gtrogers/Cute/blob/main/test/example_tests.lua)
 
 ## Current Features
 
@@ -44,7 +44,7 @@ end)
 ## How to use
 
 - Download `cute.lua` and add it to your your source code.
-- Add `cute.go(args)` to love.load in your main.lua file - [example](https://github.com/gtrogers/Cute/blob/master/main.lua)
+- Add `cute.go(args)` to love.load in your main.lua file - [example](https://github.com/gtrogers/Cute/blob/main/main.lua)
 - Optionaly add `cute.draw()` and `cute.keypressed(key)` to your love.draw and love.keypressed functions for sweet GUI action (also in main.lua)
 - Run your game with `path/to/love game_directory --cute`
 - Cute will detect and run any tests in the `test` directory and every subdirectory ending with `_tests.lua`
