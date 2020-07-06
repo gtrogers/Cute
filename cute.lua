@@ -18,6 +18,16 @@ local stringEnds = function(s, _end)
    return _end == '' or string.sub(s,-string.len(_end)) == _end
 end
 
+local isFile = function(file)
+  local fileInfo = love.filesystem.getInfo(file)
+  return fileInfo and fileInfo.type == "file"
+end
+
+local isDirectory = function(file)
+  local fileInfo = love.filesystem.getInfo(file)
+  return fileInfo and fileInfo.type == "directory"
+end
+
 -- forward declaration
 local getAllFiles
 
@@ -27,9 +37,9 @@ getAllFiles = function(folder, allFiles)
   local filesTable = lfs.getDirectoryItems(folder)
   for i,v in ipairs(filesTable) do
     local file = folder .. "/" .. v
-    if lfs.isFile(file) then
+    if isFile(file) then
       table.insert(allFiles, file)
-    elseif lfs.isDirectory(file) then
+    elseif isDirectory(file) then
       getAllFiles(file, allFiles)
     end
   end
