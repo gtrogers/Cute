@@ -1,6 +1,8 @@
 # Cute
 Embedded unit testing for Love2d
 
+Now with Love 11 support.
+
 ## What?
 
 Cute lets you write [unit tests](https://en.wikipedia.org/wiki/Unit_testing) for
@@ -31,11 +33,11 @@ notion("Foo is Zap", function ()
 end)
 
 notion("1000 circles get drawn", function ()
-  minion("el circle-o", love.graphics, circle)
+  minion("circle minion", love.graphics, circle)
 
   draw_circles(1000)
 
-  check(report("el circle-o").calls).is(1000)
+  check(report("circle minion").calls).is(1000)
 end)
 ```
 
@@ -59,8 +61,8 @@ The controls can be remapped with `cute.setKeys("hideKey","upKey","downKey")`
 ## Matchers
 
 Cute currently has two matchers:
-- `verify("something", a).is(b)` will test if a == b
-- `verify("some table", {1,2,3}).shallowMatches({1,2,3})` will check that table length and keys and values are the same for both tables
+- `check("something", a).is(b)` will test if a == b
+- `check("some table", {1,2,3}).shallowMatches({1,2,3})` will check that table length and keys and values are the same for both tables
 
 ## Minions
 
@@ -73,11 +75,11 @@ You do this using minions...
 local cute = require("cute")
 
 notion("The circles are pink", function ()
-  minion("el color-o", love.graphics, setColor) -- creates a minion to inspect setColor
+  minion("color minion", love.graphics, setColor) -- creates a minion to inspect setColor
 
   draw_circles(1000)
 
-  check(report("el color-o").args).shallowMatches({255, 0, 255}) -- checks what the minion observed
+  check(report("color minion").args).shallowMatches({255, 0, 255}) -- checks what the minion observed
 end)
 ```
 

@@ -1,5 +1,5 @@
 local cute = {}
-local version = "0.3.0"
+local version = "0.4.0"
 local padding = 16
 local margin = 8
 local show = true
