@@ -207,6 +207,20 @@ local _drawResults = function(g, w, h)
   end
 end
 
+local _drawMiniResults = function(g, w, h)
+  local x = padding
+  local y = h - padding - 60
+  local results = getTests()
+  local passed = 0
+  for i, test in ipairs(results) do
+    if test.passed then passed = passed + 1 end
+  end
+  _setColour('lightGrey', g)
+  g.rectangle('fill', x, y, 100, 60)
+  _setColour('black', g)
+  g.print("Passed: " .. passed .. "/" .. #results, x + margin, y + margin)
+end
+
 local display = function (g)
   if not show then return end
   if not enabled then return end
