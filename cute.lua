@@ -116,9 +116,12 @@ local resetMinions = function ()
 end
 
 local runAllTests = function (headlessMode)
-  print("running tests...")
-  for i, test in ipairs(getTests()) do
-    print(test.title)
+  local tests = getTests()
+  local count = 0
+  local passed_count = 0
+  for _ in pairs(tests) do count = count + 1 end
+  print("Running " .. count .. " tests...")
+  for i, test in ipairs(tests) do
     local passed, errorMsg = pcall(test.run)
     resetMinions()
     if (not passed) then
@@ -127,12 +130,18 @@ local runAllTests = function (headlessMode)
       if headlessMode then
         print("Test Failed! " .. tostring(errorMsg))
         os.exit(-1)
+      else
+        print("X " .. test.title)
+        print("\t"..tostring(errorMsg))
       end
     else
+      passed_count = passed_count + 1
       test.passed = true
+      print("✓ " .. test.title)
     end
   end
 
+  print(tostring(passed_count) .. "/" .. tostring(count) .. " tests passed")
   if headlessMode then os.exit(0) end
 end
 
